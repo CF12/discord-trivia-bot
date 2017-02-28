@@ -130,7 +130,7 @@ class TriviaQuestion {
       color: 4833279,
       title: this.q,
       fields: [
-        { name: `**[A] - ${this.i1}**`, value: `\0` }
+        { name: `**[A] - ${this.i1}**`, value: `* *` }
       ]
     }
   }
@@ -168,9 +168,12 @@ bot.on('message', (msg) => {
 
   if (msgCommand === 'TRIVIA') {
     if (msgArgs.length === 0) return logChannel(msgChannel, 'err', `Invalid usage! Use **${pf}trivia help** for more info.`)
-    if (msgArgs.length === 1) {
+    if (msgArgs.length >= 1) {
       if (msgArgs[0] === 'unranked') {
-
+        if (msgArgs.length !== 3) return logChannel(msgChannel, 'err', `Invalid usage! Usage: **${pf}trivia unranked (difficulty) (category)** for more info`)
+        let tq = new TriviaQuestion(msgArgs[1], msgArgs[2]).load().then(() => {
+          msgChannel.sendEmbed(tq.getEmbed())
+        })
       }
     }
     return
