@@ -17,14 +17,14 @@ loadFiles()
 // Variable Declarations
 let pf = config.prefix
 let categoryMappings = {
-  'general': 9,
-  'video-games': 15,
-  'math': 19,
-  'music': 12,
-  'history': 23,
-  'politics': 24,
-  'anime': 31,
-  'geography': 22
+  'GENERAL': 9,
+  'VIDEO-GAMES': 15,
+  'MATH': 19,
+  'MUSIC': 12,
+  'HISTORY': 23,
+  'POLITICS': 24,
+  'ANIME': 31,
+  'GEOGRAPHY': 22
 }
 
 // Creates discordjs object
@@ -80,17 +80,28 @@ function logChannel (channel, type, msg) {
   return channel.sendEmbed(embed)
 }
 
+function shuffleArray (array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    let j = Math.floor(Math.random() * (i + 1))
+    let temp = array[i]
+    array[i] = array[j]
+    array[j] = temp
+  }
+
+  return array
+}
+
 // Classes
 class TriviaQuestion {
-  constructor (diff, category) {
-    this.category = category
-    this.diff = diff
+  constructor (diff, category, ranked) {
+    this.category = category.toUpperCase()
+    this.diff = diff.toLowerCase()
     this.reqUrl = ''
-    this.q = ''
-    this.c = ''
-    this.i1 = ''
-    this.i2 = ''
-    this.i3 = ''
+    this.question = ''
+    this.choices = []
+    this.type = 'UNRANKED'
+
+    if (ranked) this.type = 'RANKED'
 
     this.updateReqUrl()
   }
@@ -114,11 +125,13 @@ class TriviaQuestion {
           }
 
           console.log(res.body.results[0])
-          this.q = he.decode(res.body.results[0].question)
-          this.c = he.decode(res.body.results[0].correct_answer)
-          this.i1 = he.decode(res.body.results[0].incorrect_answers[0])
-          this.i2 = he.decode(res.body.results[0].incorrect_answers[1])
-          this.i3 = he.decode(res.body.results[0].incorrect_answers[2])
+          this.question = he.decode(res.body.results[0].question)
+          this.choices.push([he.decode(res.body.results[0].correct_answer), 1])
+          for (let i of res.body.results[0].incorrect_answers) this.choices.push([he.decode(i), 0])
+
+          this.choice = shuffleArray(this.choices)
+          console.log(this.choices)
+
           resolve()
         } else reject(err)
       })
@@ -128,10 +141,15 @@ class TriviaQuestion {
   getEmbed () {
     return {
       color: 4833279,
-      title: this.q,
+      title: `:thinking: | [TYPE]: ${this.type} | [CATEGORY]: ${this.category} | [DIFFICULTY]: ${this.diff}`,
+      description: this.question,
       fields: [
-        { name: `**[A] - ${this.i1}**`, value: `* *` }
-      ]
+        { name: `**[A] - ${this.choices[0][0]}**`, value: `------------`, inline: true },
+        { name: `**[B] - ${this.choices[1][0]}**`, value: `------------`, inline: true },
+        { name: `**[C] - ${this.choices[2][0]}**`, value: `------------`, inline: true },
+        { name: `**[D] - ${this.choices[3][0]}**`, value: `------------`, inline: true }
+      ],
+      footer: {text: 'Powered by the Open Trivia Database: https://opentdb.com'}
     }
   }
 }
@@ -170,8 +188,12 @@ bot.on('message', (msg) => {
     if (msgArgs.length === 0) return logChannel(msgChannel, 'err', `Invalid usage! Use **${pf}trivia help** for more info.`)
     if (msgArgs.length >= 1) {
       if (msgArgs[0] === 'unranked') {
-        if (msgArgs.length !== 3) return logChannel(msgChannel, 'err', `Invalid usage! Usage: **${pf}trivia unranked (difficulty) (category)** for more info`)
-        let tq = new TriviaQuestion(msgArgs[1], msgArgs[2]).load().then(() => {
+        if (msgArgs.length !== 3) return logChannel(msgChannel, 'err', `Invalid usage! Usage: **${pf}trivia unranked (difficulty) (category)**`)
+        if (!['EASY', 'MEDIUM', 'HARD'].includes(msgArgs[1].toUpperCase())) return logChannel(msgChannel, 'err', `Invalid difficulty! Valid difficulties: **Easy, Medium, Hard**`)
+        if (!Object.keys(categoryMappings).includes(msgArgs[2].toUpperCase())) return logChannel(msgChannel, 'err', `Invalid category! To get a list of all available categories, please use **${pf}trivia categories**`)
+
+        let tq = new TriviaQuestion(msgArgs[1], msgArgs[2])
+        tq.load().then(() => {
           msgChannel.sendEmbed(tq.getEmbed())
         })
       }
