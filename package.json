@@ -18,7 +18,7 @@
   "homepage": "https://github.com/CF12/discord-trivia-bot#readme",
   "dependencies": {
     "discord.js": "^11.0.0",
-    "erlpack": "erlpack@hammerandchisel/erlpack#master",
+    "erlpack": "github:hammerandchisel/erlpack",
     "he": "^1.1.1",
     "node-opus": "^0.2.4",
     "opusscript": "0.0.1",
