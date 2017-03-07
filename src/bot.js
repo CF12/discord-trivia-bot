@@ -12,7 +12,7 @@ let config
 let opentdbFile
 
 // Loads files
-loadFiles()
+if (process.argv.length === 2) loadFiles()
 
 // Variable Declarations
 let pf = config.prefix
