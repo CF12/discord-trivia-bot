@@ -32,7 +32,7 @@ let categoryMappings = {
 const bot = new DiscordJS.Client()
 
 // Bot login
-if (process.argv[2].toUpperCase() === 'CI') bot.login('Mjg3MDcwODk1NTE0NzE0MTEy.C57-6Q.SYgRsqpoWT-7Bh7ldMx84avW0Vo)
+if (process.argv[2].toUpperCase() === 'USE') bot.login(process.argv[3])
 else bot.login(config.bot_token)
 
 // Functions
@@ -162,7 +162,10 @@ class TriviaQuestion {
 // Event: When bot is ready
 bot.on('ready', () => {
   console.log('INFO >> Bot started')
-  if (process.argv[2].toUpperCase() === 'CI') console.log('INFO >> Using CI account')
+  if (process.argv[2].toUpperCase() === 'CI') {
+    console.log('TEST >> Bot Initiation Success! Ending Process...')
+    process.exit(0)
+  }
 
   // Initial trivia session check
   checkTriviaToken((state) => { if (state) getTriviaToken() })

@@ -4,7 +4,7 @@
   "description": "A trivia bot built for discord - Powered by Discord.JS",
   "main": "src/bot.js",
   "scripts": {
-    "test": "node src/bot.js"
+    "test": "node src/bot.js ci %CI_BOT_TOKEN%"
   },
   "repository": {
     "type": "git",
