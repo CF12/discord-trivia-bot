@@ -14,6 +14,10 @@ let opentdbFile
 // Loads files
 if (process.argv.length === 2) loadFiles()
 
+// Bot login
+if (process.argv[2].toUpperCase() === 'USE') bot.login(process.argv[3])
+else bot.login(config.bot_token)
+
 // Variable Declarations
 let pf = config.prefix
 let userCache = {}
@@ -30,10 +34,6 @@ let categoryMappings = {
 
 // Creates discordjs object
 const bot = new DiscordJS.Client()
-
-// Bot login
-if (process.argv[2].toUpperCase() === 'USE') bot.login(process.argv[3])
-else bot.login(config.bot_token)
 
 // Functions
 function checkTriviaToken (callback) {
