@@ -7,6 +7,9 @@ const fs = require('fs')
 const req = require('req-fast')
 const he = require('he')
 
+// Creates discordjs object
+const bot = new DiscordJS.Client()
+
 // Config File Declarations
 let config
 let opentdbFile
@@ -30,11 +33,8 @@ let categoryMappings = {
 
 if (process.argv.length === 2) pf = config.prefix
 
-// Creates discordjs object
-const bot = new DiscordJS.Client()
-
 // Bot login
-if (process.argv[2].toUpperCase() === 'USE') bot.login(process.argv[3])
+if (process.argv[2].toUpperCase() === 'CI') bot.login(process.env.CI_BOT_TOKEN)
 else bot.login(config.bot_token)
 
 // Functions
