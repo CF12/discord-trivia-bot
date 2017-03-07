@@ -16,6 +16,7 @@ loadFiles()
 
 // Variable Declarations
 let pf = config.prefix
+let userCache = {}
 let categoryMappings = {
   'GENERAL': 9,
   'VIDEO-GAMES': 15,
@@ -141,13 +142,16 @@ class TriviaQuestion {
   getEmbed () {
     return {
       color: 4833279,
-      title: `:thinking: | [TYPE]: ${this.type} | [CATEGORY]: ${this.category} | [DIFFICULTY]: ${this.diff}`,
-      description: this.question,
+      author: {
+        name: `=========================❰ TRIVIA ❱=========================`
+      },
+      title: `:thinking: [${this.type}] || [${this.category}] || [${this.diff.toUpperCase()}] :thinking:`,
+      description: `__**${this.question}**__`,
       fields: [
-        { name: `**[A] - ${this.choices[0][0]}**`, value: `------------`, inline: true },
-        { name: `**[B] - ${this.choices[1][0]}**`, value: `------------`, inline: true },
-        { name: `**[C] - ${this.choices[2][0]}**`, value: `------------`, inline: true },
-        { name: `**[D] - ${this.choices[3][0]}**`, value: `------------`, inline: true }
+        {name: `**[A] - ${this.choices[0][0]}**`, value: `=========================`},
+        {name: `**[B] - ${this.choices[1][0]}**`, value: `=========================`},
+        {name: `**[C] - ${this.choices[2][0]}**`, value: `=========================`},
+        {name: `**[D] - ${this.choices[3][0]}**`, value: `=========================`}
       ],
       footer: {text: 'Powered by the Open Trivia Database: https://opentdb.com'}
     }
@@ -160,6 +164,7 @@ bot.on('ready', () => {
 
   // Initial trivia session check
   checkTriviaToken((state) => { if (state) getTriviaToken() })
+  resetTriviaToken()
 })
 
 // Event: When the bot detects a message
@@ -193,11 +198,28 @@ bot.on('message', (msg) => {
         if (!Object.keys(categoryMappings).includes(msgArgs[2].toUpperCase())) return logChannel(msgChannel, 'err', `Invalid category! To get a list of all available categories, please use **${pf}trivia categories**`)
 
         let tq = new TriviaQuestion(msgArgs[1], msgArgs[2])
+
+        if (!Object.keys(userCache).inclues(msgMember.id)) userCache.msgMember.id = tq
+
         tq.load().then(() => {
           msgChannel.sendEmbed(tq.getEmbed())
+          .then((msg) => {
+            setTimeout(() => {
+              msg.delete()
+            }, 10000)
+          })
         })
       }
     }
+    return
+  }
+
+  if (msgCommand === 'INFO') {
+    let imgCredits = [
+      {name: 'Bot Icon', value: '*Icon made by Dimi Kazak from www.flaticon.com*'}
+    ]
+    msgChannel.sendEmbed({color: 16736580, description: `Image Credits:`, fields: imgCredits})
+
     return
   }
 })
